@@ -1,0 +1,4 @@
+main: com.detzerg.sbadmin.BungeePlugin
+version: 1.0
+author: Detzer_G
+name: SBAdmin

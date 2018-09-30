@@ -1,0 +1,11 @@
+name: SBAdmin
+version: 1.0
+main: com.detzerg.sbadmin.SpigotPlugin
+author: Detzer_G
+commands:
+  sadmin:
+    description: Plugin Admin
+    usage: /<command>
+  report:
+    description: Report a user
+    usage: /<command>

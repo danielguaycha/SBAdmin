@@ -1,0 +1,184 @@
+# Env menu
+MainMenuTitle: '&6=&e=-&c Reporte &e-=&6='
+MainSlots: 27
+
+# Hack Menu
+HackMenuTitle: '&a&m++- &r&cTipo de Hack &a&m-++'
+HackMenuSlots: 27
+
+# Items for Env Menu
+BUG:
+  enable: true
+  item: ANVIL
+  name: '&cUso de Bug'
+  lore:
+  - ''
+  - '&7Reporta este jugador'
+  - '&7por uso de bugs'
+  - ''
+  - '&e¡Click para Reportar!'
+  slot: 5
+HACK:
+  enable: true
+  item: DIAMOND_SWORD
+  name: '&cUso de Hacks'
+  lore:
+  - ''
+  - '&7Reporta este jugador'
+  - '&7por uso de hacks'
+  - ''
+  - '&e¡Click para Reportar!'
+  slot: 3
+BAD-WORDS:
+  enable: true
+  item: PAPER
+  name: '&cMalas palabras e insultos'
+  lore:
+  - ''
+  - '&7Reporta este jugador'
+  - '&7por decir malas palabras'
+  - '&7e insultar'
+  - ''
+  - '&e¡Click para Reportar!'
+  slot: 7
+SPAM:
+  enable: true
+  item: WRITTEN_BOOK
+  name: '&cHacer Spam o Pasar IP'
+  lore:
+  - ''
+  - '&7Reporta este jugador'
+  - '&7por hacer spam o pasar IP'
+  - ''
+  - '&e¡Click para Reportar!'
+  slot: 1
+TEAM:
+  enable: true
+  item: GOLD_HELMET
+  name: '&cHacer Team'
+  lore:
+  - ''
+  - '&7Reporta este jugador'
+  - '&7por hacer team'
+  - ''
+  - '&e¡Click para Reportar!'
+  slot: 19
+CAMPER:
+  enable: true
+  item: BOW
+  name: '&cCamping'
+  lore:
+  - ''
+  - '&7Reporta este jugador'
+  - '&7por camping'
+  - ''
+  - '&e¡Click para Reportar!'
+  slot: 25
+# Back button in Menus
+BACK:
+  enable: true
+  item: ARROW
+  name: '&c<- Back'
+  lore:
+  - ''
+  - '&7Cierra este Menu'
+  - ''
+  slot: 26 # this slot is last in the menus
+
+# Items for Hack Menu
+TYPES-HACKS:
+  KillAura:
+    name: '&cKillAura'
+    lore: '&7Reporta por uso de KillAura'
+    item: DIAMOND_SWORD
+    slot: 1
+  Fly:
+    name: '&cFly'
+    lore: '&7Reporta por uso de Fly'
+    item: FEATHER
+    slot: 2
+  FastBow:
+    name: '&cFastBow'
+    lore: '&7Reporta por uso de FastBow'
+    item: BOW
+    slot: 3
+  xRay:
+    name: '&cxRay'
+    lore: '&7Reporta por uso de xRay'
+    item: DIAMOND_ORE
+    slot: 4
+  AntiKB:
+    name: '&cAntiKnockBack'
+    lore: '&7Reporta por uso de Anti-KB'
+    item: WEB
+    slot: 5
+  Aimbot:
+    name: '&cAimbot'
+    lore: '&7Reporta por uso de Aimbot'
+    item: FISHING_ROD
+    slot: 6
+  FallDamage:
+    name: '&cFallDamage OFF'
+    lore: '&7Reporta por uso de Anti FallDamage'
+    item: DIAMOND_BOOTS
+    slot: 7
+  Speed:
+    name: '&cSpeed'
+    lore: '&7Reporta por uso de Speed'
+    item: POTION
+    slot: 13
+  God:
+    name: '&cGod'
+    lore: '&7Camina en el agua'
+    item: WATER_BUCKET
+    slot: 12
+  ChestFinder:
+    name: '&cChestFinder'
+    lore: '&7Reporta por uso de ChestFinder'
+    item: CHEST
+    slot: 14
+  AutoArmor:
+    name: '&cAutoArmor'
+    lore: '&7Reporta por uso de AutoArmor'
+    item: GOLD_CHESTPLATE
+    slot: 15
+  Criticals:
+    name: '&cCriticals'
+    lore: '&7Reporta por uso de Criticals'
+    item: NETHER_STAR
+    slot: 11
+  FastEat:
+    name: '&cFastEat'
+    lore: '&7Reporta por FastEat'
+    item: COOKED_BEEF
+    slot: 16
+  Spider:
+    name: '&cSpider'
+    lore: '&7Reporta por uso de Spider'
+    item: SPIDER_EYE
+    slot: 10
+  AutoBlock:
+    name: '&cAutoBlock'
+    lore: '&7Reporta por uso de AutoBlock'
+    item: IRON_SWORD
+    slot: 9
+  InvMove:
+    name: '&cInvMove'
+    lore: '&7Movimiento con Inventario abierto'
+    item: ENCHANTMENT_TABLE
+    slot: 17
+  AutoClick:
+    name: '&cAutoClick'
+    lore: '&7Reporta por uso de AutoClick'
+    item: IRON_SPADE
+    slot: 22
+  TriggerBot:
+    name: '&cTriggerBot'
+    lore: '&7Reporta por uso de TriggerBot'
+    item: FLINT_AND_STEEL
+    slot: 21
+  PlayerAPI:
+    name: '&cPlayerAPI'
+    lore: '&7Reporta por uso de PlayerAPI'
+    item: DOUBLE_PLANT
+    slot: 23
