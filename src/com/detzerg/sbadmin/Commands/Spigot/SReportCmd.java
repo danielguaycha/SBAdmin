@@ -1,5 +1,6 @@
 package com.detzerg.sbadmin.Commands.Spigot;
 
+import com.detzerg.sbadmin.Modules.Env;
 import com.detzerg.sbadmin.Modules.Util.SUtil;
 import com.detzerg.sbadmin.SpigotPlugin;
 import org.bukkit.command.Command;
@@ -29,7 +30,7 @@ public class SReportCmd implements CommandExecutor {
                 p.sendMessage(SUtil.message("&c"+args[0]+ "&f no es un nick valido!"));
                 return true;
             }
-            if (victim.equals(p.getDisplayName())){
+            if (victim.equals(p.getDisplayName()) && Env.production){
                 p.sendMessage(SUtil.message("&cNo te puedes reportar a ti mismo &e._."));
                 return true;
             }

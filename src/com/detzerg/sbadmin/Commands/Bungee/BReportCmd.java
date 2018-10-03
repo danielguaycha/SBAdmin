@@ -1,7 +1,9 @@
 package com.detzerg.sbadmin.Commands.Bungee;
 
 import com.detzerg.sbadmin.BungeePlugin;
+import com.detzerg.sbadmin.Modules.Redis.RedisPlayer;
 import com.detzerg.sbadmin.Modules.Util.BUtil;
+import com.sun.javafx.collections.MappingChange;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -9,10 +11,14 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class BReportCmd extends Command {
     private BungeePlugin main;
+    private String server;
     public BReportCmd(BungeePlugin main) {
         super("breport");
         this.main = main;
@@ -21,13 +27,7 @@ public class BReportCmd extends Command {
     @Override
     public void execute(CommandSender sender, String[] args) {
 
-        if (sender instanceof  ProxiedPlayer){
-            ProxiedPlayer reporter = (ProxiedPlayer)sender;
-            if (args.length < 2){
-                reporter.sendMessage(BUtil.f("Usa: &6/breport &7<player> <reason>"));
-                return;
-            }
-            report(reporter, args[0], getReason(args, 1));
+        if (sender instanceof ProxiedPlayer){
             return;
         }
 
@@ -37,22 +37,57 @@ public class BReportCmd extends Command {
         }
 
         ProxiedPlayer reporter = main.getProxy().getPlayer(args[0]);
-        if (reporter == null){
-            BUtil.say("El jugador "+reporter+" esta desconectado!");
+        ProxiedPlayer victim = main.getProxy().getPlayer(args[1]);
+
+
+        if (victim!=null && reporter!=null){
+            reportBungeeMode(reporter, victim.getDisplayName(), getReason(args, 2));
             return;
         }
 
-        report(reporter, args[1], getReason(args, 2));
+        if (main.getC().redisMode()){
+            if (reporter!=null && !reporter.hasPermission("report.command")){
+                reporter.sendMessage(BUtil.f("&cNo tienes permisos para reportar jugadores"));
+                return;
+            }
+            if (victim!=null){
+                server = victim.getServer().getInfo().getName();
+                reportRedisMode(args[0], args[1], getReason(args, 2), server);
+                if (reporter!=null)
+                    reporter.sendMessage(BUtil.f("&cEl jugador &f" + args[1] + " &c no esta conectado"));
+            }
+            else{
+                main.getProxy().getPluginManager().dispatchCommand(main.getProxy().getConsole(),
+                        "sync -b /bfind "+args[0]+" "+args[1]);
+                main.getProxy().getScheduler().schedule(main, () -> {
+                    RedisPlayer rsp = main.getReports().get(args[0]);
+                    if (rsp!=null) {
+                        server = rsp.getVictim_server();
+                        reportRedisMode(args[0], args[1], getReason(args, 2), server);
+                        if (reporter!=null)
+                            reporter.sendMessage(BUtil.f("&7Reportaste a &c&l"+args[1]+"&7, sera revisado!"));
+                        main.getReports().remove(args[0]);
+                    }
+                    else {
+                        if (reporter!=null)
+                            reporter.sendMessage(BUtil.f("&cEl jugador &f" + args[1] + " &c no esta conectado"));
+                    }
+                }, 5, TimeUnit.SECONDS);
+            }
+        }
     }
 
-    private void report(ProxiedPlayer reporter, String victim, String reason){
+    private void reportRedisMode(String reporter, String victim, String reason, String server){
+        broadcastToStaff(reporter, victim, server, reason);
+    }
+
+    private void reportBungeeMode(ProxiedPlayer reporter, String victim, String reason){
 
         ProxiedPlayer v =  main.getProxy().getPlayer(victim);
         if (v==null){
             reporter.sendMessage(BUtil.f("El jugador no esta conectado!"));
             return;
         }
-
         if (!reporter.hasPermission("report.command")){
             reporter.sendMessage(BUtil.f("&cNo tienes permisos para reportar jugadores"));
             return;
@@ -61,6 +96,7 @@ public class BReportCmd extends Command {
         String serverToSend = v.getServer().getInfo().getName();
         broadcastToStaff(reporter.getDisplayName(), v.getDisplayName(), serverToSend, reason);
         reporter.sendMessage(BUtil.f("&7Reportaste a &c&l"+v.getDisplayName()+"&7, sera revisado!"));
+
     }
 
     private String getReason(String[]args, int init){

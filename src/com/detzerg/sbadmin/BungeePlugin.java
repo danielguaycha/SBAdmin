@@ -4,8 +4,12 @@ import com.detzerg.sbadmin.Commands.Bungee.*;
 import com.detzerg.sbadmin.Modules.Config.BungeeConfig;
 import com.detzerg.sbadmin.Modules.Db;
 import com.detzerg.sbadmin.Modules.Mqtt;
+import com.detzerg.sbadmin.Modules.Redis.RedisPlayer;
 import com.detzerg.sbadmin.Modules.Util.BUtil;
 import net.md_5.bungee.api.plugin.Plugin;
+
+import java.util.HashMap;
+import java.util.Set;
 
 
 public class BungeePlugin  extends Plugin{
@@ -13,7 +17,7 @@ public class BungeePlugin  extends Plugin{
     private BungeeConfig c;
     private static Db db;
     private Mqtt mq;
-    public final String topic ="/pruebas/";
+    private HashMap<String, RedisPlayer> reports;
     @Override
     public void onEnable() {
         setMain(this);
@@ -44,15 +48,19 @@ public class BungeePlugin  extends Plugin{
         if (c.isValid()) {
             mq = new Mqtt(c);
             BUtil.say("&aPlugin BungeeAdmin 100% operational");
+            getProxy().getPluginManager().registerCommand(this, new BSyncCmd(this));
+            getProxy().getPluginManager().registerCommand(this, new BReportCmd(this));
         }
         else {
             BUtil.say("Ingrese un server_id y server_name unico, luego ejecute &c/badmin &freload");
         }
-
         getProxy().getPluginManager().registerCommand(this, new BRegisterCmd(this));
-        getProxy().getPluginManager().registerCommand(this, new BSyncCmd(this));
-        getProxy().getPluginManager().registerCommand(this, new BReportCmd(this));
         getProxy().getPluginManager().registerCommand(this, new BGotoCmd(this));
+
+        if (c.redisMode()) {
+            getProxy().getPluginManager().registerCommand(this, new BFindCmd(this));
+            this.reports = new HashMap<>();
+        }
     }
 
     private static void setMain(BungeePlugin main){
@@ -69,5 +77,8 @@ public class BungeePlugin  extends Plugin{
     }
     public Mqtt getMqtt(){
         return this.mq;
+    }
+    public HashMap<String, RedisPlayer> getReports(){
+        return reports;
     }
 }

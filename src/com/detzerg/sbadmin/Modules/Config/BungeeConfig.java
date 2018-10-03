@@ -51,4 +51,8 @@ public class BungeeConfig {
     public boolean useDb(){
         return config.getBoolean("use_db");
     }
+
+    public boolean redisMode(){
+        return config.getBoolean("bungee_redis");
+    }
 }

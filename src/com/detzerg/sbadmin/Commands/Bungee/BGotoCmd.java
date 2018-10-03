@@ -27,13 +27,16 @@ public class BGotoCmd extends Command {
                 ServerInfo sv = main.getProxy().getServerInfo(arg[0]);
                 if (sv != p.getServer().getInfo()) {
                     ServerInfo server = main.getProxy().getServerInfo(arg[0]);
-                    p.connect(server);
+                    if (server!=null) {
+                        p.connect(server);
+                    }else{
+                        p.sendMessage(BUtil.f("&cSorry! no te podemos llevar :("));
+                    }
                 }else{
                     p.sendMessage(BUtil.message(" "));
                     p.sendMessage(BUtil.message("&aYa estas en este server!"));
                 }
             }catch (Exception e){
-                e.printStackTrace();
                 p.sendMessage(BUtil.message("Por alguna razón no podemos llevarte a este server!"));
             }
 

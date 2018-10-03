@@ -9,3 +9,6 @@ commands:
   report:
     description: Report a user
     usage: /<command>
+  opc:
+    description: Op Control
+    usage: /<command>

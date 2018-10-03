@@ -1,9 +1,9 @@
 package com.detzerg.sbadmin.Modules;
 import com.detzerg.sbadmin.BungeePlugin;
-import com.detzerg.sbadmin.Env;
 import com.detzerg.sbadmin.Modules.Config.BungeeConfig;
 import com.detzerg.sbadmin.Modules.Config.SpigotConfig;
 import com.detzerg.sbadmin.Modules.Executor.ExecutorManager;
+import com.detzerg.sbadmin.Modules.Redis.RedisManager;
 import com.detzerg.sbadmin.SpigotPlugin;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
@@ -14,9 +14,10 @@ import java.sql.SQLException;
 import java.util.Date;
 
 public class Mqtt implements MqttCallback{
+    private int reconect;
     private Db db;
     private MqttClient client;
-    private String execTopic ="/web/execute/";
+    private String execTopic;
 
     private int server_id;
     private String server_name;
@@ -26,10 +27,12 @@ public class Mqtt implements MqttCallback{
     private String mqtt_server;
     private String user;
     private String password;
+    private boolean mqtt_redis;
 
     public Mqtt(BungeeConfig cfg){
         this.db = BungeePlugin.getDb();
-        this.execTopic = BungeePlugin.getMain().topic;
+        this.execTopic = Env.topicExec;
+        this.reconect = 0;
 
         this.server_id = cfg.getConfig().getInt("server_id");
         this.server_name =cfg.getConfig().getString("server_name");
@@ -39,15 +42,20 @@ public class Mqtt implements MqttCallback{
         this.mqtt_server = cfg.getConfig().getString("mqtt_server")+":"+cfg.getConfig().getInt("mqtt_port");
         this.user = cfg.getConfig().getString("mqtt_user");
         this.password = cfg.getConfig().getString("mqtt_password");
+        this.mqtt_redis = cfg.redisMode();
 
-        connect(mqtt_server, server_name+"_"+server_id, user, password);
+        connect();
+
         if (cfg.useDb())
             installServer();
+
     }
 
     public Mqtt(SpigotConfig cfg) {
         this.db = SpigotPlugin.getDb();
-        this.execTopic = SpigotPlugin.getMain().topic;
+        this.execTopic = Env.topicExec;
+        this.reconect = 0;
+
         this.server_id = cfg.getConfig().getInt("server_id");
         this.server_name =cfg.getConfig().getString("server_name");
         this.server_description =cfg.getConfig().getString("server_description");
@@ -56,8 +64,8 @@ public class Mqtt implements MqttCallback{
         this.mqtt_server = cfg.getConfig().getString("mqtt_server")+":"+cfg.getConfig().getInt("mqtt_port");
         this.user = cfg.getConfig().getString("mqtt_user");
         this.password = cfg.getConfig().getString("mqtt_password");
-
-        connect(mqtt_server, server_name+"_"+server_id, user, password);
+        this.mqtt_redis = false;
+        connect();
         if(cfg.useDb())
             installServer();
     }
@@ -105,22 +113,24 @@ public class Mqtt implements MqttCallback{
         return false;
     }
 
-    private void connect (String server, String client_id, String user, String password){
+    private void connect(){
         try{
-            client = new MqttClient(
-                    server,
-                    client_id,
-                    new MemoryPersistence()
-            );
+            client = new MqttClient(this.mqtt_server,
+                    this.server_name+"_"+this.server_id, new MemoryPersistence());
 
             MqttConnectOptions conOpt = new MqttConnectOptions();
             conOpt.setCleanSession(true);
-            conOpt.setUserName(user);
-            conOpt.setPassword(password.toCharArray());
+            conOpt.setUserName(this.user);
+            conOpt.setPassword(this.password.toCharArray());
 
             client.setCallback(this);
             client.connect(conOpt);
             client.subscribe(execTopic);
+
+            if (this.mqtt_redis){
+                client.subscribe(Env.topicRedis);
+            }
+            reconect = 0;
         }
         catch (MqttException e) {
             e.printStackTrace();
@@ -143,7 +153,7 @@ public class Mqtt implements MqttCallback{
 
     public void close(){
         try {
-            if (client.isConnected()) {
+            if (client.isConnected() && client!=null) {
                 client.disconnect();
                 client.close();
             }
@@ -153,8 +163,10 @@ public class Mqtt implements MqttCallback{
     }
 
     private boolean isConnected() {
-        if (client.isConnected())
+        if (client.isConnected()) {
+            reconect = 0;
             return true;
+        }
         else {
             try {
                 client.reconnect();
@@ -167,21 +179,22 @@ public class Mqtt implements MqttCallback{
 
     @Override
     public void connectionLost(Throwable cause) {
-        System.out.println("Connection lost because: " + cause.getMessage());
-        try {
-            System.out.println("Intentando reconectar");
-            client.reconnect();
-        } catch (MqttException e) {
-            System.out.println("No se pudo reconectar :"+e.getMessage());
-        }
+      if (!isConnected() && reconect<5){
+          reconect++;
+      }
     }
 
     @Override
     public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
         if (!Env.production)
             System.out.println(String.format("[%s] %s", s, new String(mqttMessage.getPayload())));
+
         if(s.equals(this.execTopic)) {
             new ExecutorManager(this.server_type, new String(mqttMessage.getPayload()));
+        }
+
+        if (s.equals(Env.topicRedis)){
+            new RedisManager(new String(mqttMessage.getPayload()));
         }
     }
 
@@ -189,5 +202,6 @@ public class Mqtt implements MqttCallback{
     public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
 
     }
+
 }
 

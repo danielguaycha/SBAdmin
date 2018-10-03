@@ -1,6 +1,7 @@
 package com.detzerg.sbadmin.Commands.Bungee;
 
 import com.detzerg.sbadmin.BungeePlugin;
+import com.detzerg.sbadmin.Modules.Env;
 import com.detzerg.sbadmin.Modules.Util.BUtil;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.plugin.Command;
@@ -19,28 +20,32 @@ public class BSyncCmd extends Command {
         if (!sender.hasPermission("sync.command")){
             sender.sendMessage(BUtil.message("&cNo tienes permiso para ejecutar este comando"));
         }else{
-            if (args.length>0 && args[0].startsWith("/") && !args[0].substring(1).trim().equals("")){
-                publishCmdSpigot(args);
-                sender.sendMessage(BUtil.message("&dComando Sincronizado!"));
-            }
-            else if(args.length >0 && args[0].startsWith("-") && !args[0].substring(1).trim().equals("")){
-                String subCmd = args[0].substring(1).trim();
-                switch (subCmd){
-                    case "b":
-                        if (args.length>1 && args[1].startsWith("/") && !args[1].substring(1).trim().equals("")){
-                            publishCmdBungees(args);
-                        }else {
-                            printHelp(sender);
-                        }
-                        break;
-                    default:
-                        printHelp(sender);
-                        break;
+            main.getProxy().getScheduler().runAsync(main, ()->{
+
+                if (args.length>0 && args[0].startsWith("/") && !args[0].substring(1).trim().equals("")){
+                    publishCmdSpigot(args);
+                    sender.sendMessage(BUtil.message("&dComando Sincronizado!"));
                 }
-            }
-            else{
-                printHelp(sender);
-            }
+                else if(args.length >0 && args[0].startsWith("-") && !args[0].substring(1).trim().equals("")){
+                    String subCmd = args[0].substring(1).trim();
+                    switch (subCmd){
+                        case "b":
+                            if (args.length>1 && args[1].startsWith("/") && !args[1].substring(1).trim().equals("")){
+                                publishCmdBungees(args);
+                            }else {
+                                printHelp(sender);
+                            }
+                            break;
+                        default:
+                            printHelp(sender);
+                            break;
+                    }
+                }
+                else{
+                    printHelp(sender);
+                }
+
+            });
         }
     }
 
@@ -56,7 +61,7 @@ public class BSyncCmd extends Command {
         json.put("source", "bungeeConsole");
         json.put("commands", cmds);
 
-        main.getMqtt().publish(json.toJSONString(),main.topic);
+        main.getMqtt().publish(json.toJSONString(), Env.topicExec);
     }
 
     private void publishCmdBungees(String[] args){
@@ -71,7 +76,7 @@ public class BSyncCmd extends Command {
         json.put("source", "bungeeConsole");
         json.put("commands", cmds);
 
-        main.getMqtt().publish(json.toJSONString(),main.topic);
+        main.getMqtt().publish(json.toJSONString(), Env.topicExec);
     }
 
     private void printHelp(CommandSender sender){

@@ -1,8 +1,8 @@
 package com.detzerg.sbadmin.Modules.Executor;
 
 import com.detzerg.sbadmin.SpigotPlugin;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;

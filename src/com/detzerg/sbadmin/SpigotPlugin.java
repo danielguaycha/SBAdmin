@@ -1,10 +1,10 @@
 package com.detzerg.sbadmin;
 
 import com.detzerg.sbadmin.Commands.Spigot.SReloadCmd;
-import com.detzerg.sbadmin.Commands.Spigot.SReportCmd;
 import com.detzerg.sbadmin.Modules.Config.SpigotConfig;
 import com.detzerg.sbadmin.Modules.Db;
 import com.detzerg.sbadmin.Modules.Mqtt;
+import com.detzerg.sbadmin.Modules.OpControl.Opc;
 import com.detzerg.sbadmin.Modules.Reporter.Report;
 import com.detzerg.sbadmin.Modules.Util.SUtil;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -15,24 +15,23 @@ public class SpigotPlugin extends JavaPlugin {
     private static Db db;
     private Mqtt mqtt;
     private Report rp;
-    public final String topic ="/pruebas/";
+    private Opc opc;
     @Override
     public void onEnable() {
         main = this;
         getCommand("sadmin").setExecutor(new SReloadCmd(this));
-        getCommand("report").setExecutor(new SReportCmd(this));
         load();
     }
 
 
     @Override
     public void onDisable() {
-        if (rp!=null)
-            rp = null;
+        if (this.rp!=null)
+            this.rp = null;
 
-        if (mqtt!=null) {
-            mqtt.close();
-            mqtt = null;
+        if (this.mqtt!=null) {
+            this.getMqtt().close();
+            this.mqtt = null;
         }
 
         if (db!=null) {
@@ -58,6 +57,7 @@ public class SpigotPlugin extends JavaPlugin {
         else{
             SUtil.say("&fIngrese un server_id y server_name unico, luego ejecute &c/sadmin &freload");
         }
+        //opc = new Opc();
     }
 
     public SpigotConfig getCfg(){
@@ -74,5 +74,8 @@ public class SpigotPlugin extends JavaPlugin {
     }
     public Mqtt getMqtt(){
         return this.mqtt;
+    }
+    public Opc getOpc(){
+        return this.opc;
     }
 }

@@ -1,5 +1,5 @@
 # BUNGEE CONFIG
-
+bungee_redis: true
 # Configure Mqtt communications section for init plugin
 
 # HTTP web communication urls

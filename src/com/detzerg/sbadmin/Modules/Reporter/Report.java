@@ -1,5 +1,7 @@
 package com.detzerg.sbadmin.Modules.Reporter;
 
+import com.detzerg.sbadmin.Commands.Spigot.SReportCmd;
+import com.detzerg.sbadmin.Modules.Env;
 import com.detzerg.sbadmin.Modules.Util.SUtil;
 import com.detzerg.sbadmin.SpigotPlugin;
 import org.bukkit.Bukkit;
@@ -26,6 +28,7 @@ public class Report implements Listener{
         this.main = main;
         this.rc = new ReportConfig(main);
         this.reports = new HashMap<>();
+        main.getCommand("report").setExecutor(new SReportCmd(main));
         main.getServer().getPluginManager().registerEvents(this, main);
     }
 
@@ -111,7 +114,7 @@ public class Report implements Listener{
             if (item.getType() == Material.getMaterial(rc.cfg().getString("HACK.item"))){
                 menuHacks(p);
             }else{
-                publish(p, reports.get(p), (item.getItemMeta().getDisplayName()));
+                this.publish(p, reports.get(p), (item.getItemMeta().getDisplayName()));
                 p.getOpenInventory().close();
                 reports.remove(p);
             }
@@ -123,7 +126,7 @@ public class Report implements Listener{
                 p.getOpenInventory().close();
                 menu(p, reports.get(p));
             }else{
-                publish(p, reports.get(p), item.getItemMeta().getDisplayName());
+                main.getRp().publish(p, reports.get(p), item.getItemMeta().getDisplayName());
                 p.getOpenInventory().close();
                 reports.remove(p);
             }
@@ -131,7 +134,7 @@ public class Report implements Listener{
         }
     }
 
-    private void publish(Player p, String victim, String reason){
+    public void publish(Player p, String victim, String reason){
         if (p == null || victim == null || victim.equals("") || reason == null || reason.equals("")){
             return;
         }
@@ -141,8 +144,10 @@ public class Report implements Listener{
             public void run() {
                 JSONArray cmds = new JSONArray();
                 cmds.add("breport "+p.getDisplayName()+" "+victim+" "+ ChatColor.stripColor(reason));
+
                 JSONObject json = new JSONObject();
                 json.put("player", p.getDisplayName());
+                json.put("player_origin", main.getServer().getName());
                 json.put("player_id", 1);
                 json.put("server_id", -1);
                 json.put("server_name", "bungees");
@@ -151,7 +156,7 @@ public class Report implements Listener{
                 json.put("commands", cmds);
 
                 if (main.getMqtt()!=null) {
-                    main.getMqtt().publish(json.toJSONString(), main.topic);
+                    main.getMqtt().publish(json.toJSONString(), Env.topicExec);
                 }
                 else
                    SUtil.say("Aun no se ha configurado el 'id' y 'name' para este server!");
